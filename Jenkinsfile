@@ -53,43 +53,34 @@ pipeline {
         stage('Deploy to cPanel (via FTP)') {
             steps {
                 script {
-                    // This is the structure used by the FTP Publisher Plugin
-                    // The site name is passed inside the 'transfer' block.
-                    // This syntax is much more robust than the declarative wrapper.
+                    // Paste the generated Groovy step here
                     ftpPublisher(
-                        // These parameters handle error states and execution location
-                        continueOnError: false, 
-                        failOnError: true, 
                         alwaysPublishFromMaster: false, 
-                        
-                        publishers: [
-                            // Define the publisher group. The 'configName' or 'site' 
-                            // is usually defined within the transfer itself when 
-                            // using this syntax.
-                            [
-                                // This block defines the actual transfer details
-                                transfers: [
-                                    // CRITICAL: Ensure the site name and clean flag are nested correctly
-                                    [
-                                        // The FTP Site Name MUST be passed here:
-                                        site: 'cPanel-FTP-Server', // Name from Manage Jenkins -> FTP Configuration
-                                        
-                                        // Transfer details
-                                        sourceFiles: 'dist/**',
-                                        removePrefix: 'dist',
-                                        remoteDirectory: 'public_html',
-                                        
-                                        // Use the clean flag if needed (delete files before transfer)
-                                        clean: true,
-                                        flatten: false, 
-                                        remoteDirectorySDF: false 
-                                    ]
-                                ]
-                            ]
-                        ]
+                        continueOnError: false, 
+                        failOnError: false, 
+                        publishers: [[
+                            configName: 'cPanel-FTP-Server', 
+                            transfers: [[
+                                asciiMode: false, 
+                                cleanRemote: true, 
+                                excludes: '', 
+                                flatten: false, 
+                                makeEmptyDirs: false, 
+                                noDefaultExcludes: false, 
+                                patternSeparator: '[, ]+', 
+                                remoteDirectory: 'public_html', 
+                                remoteDirectorySDF: false, 
+                                removePrefix: 'dist', 
+                                sourceFiles: 'dist/**'
+                            ]], 
+                            usePromotionTimestamp: false, 
+                            useWorkspaceInPromotion: false, 
+                            verbose: false
+                        ]]
                     )
                 }
             }
+        }
         }
     }
 }
