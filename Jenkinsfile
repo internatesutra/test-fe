@@ -64,7 +64,6 @@ pipeline {
                     publishers: [
                         [ // This represents the first (and only) publisher group
                             // The actual type identifier for the FTP plugin
-                            'ftp': [
                                 site: 'cPanel-FTP-Server', // MUST match your global config name
                                 
                                 // The 'transfers' parameter MUST be a list of transfer configurations.
@@ -77,7 +76,6 @@ pipeline {
                                         flatten: false, 
                                         remoteDirectorySDF: false 
                                     ]
-                                ]
                             ]
                         ]
                     ]
