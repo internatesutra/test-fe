@@ -73,7 +73,7 @@ pipeline {
                                         clean: true, 
                                         sourceFiles: 'dist/**', 
                                         removePrefix: 'dist', 
-                                        remoteDirectory: 'public_html', 
+                                        remoteDirectory: '/', 
                                         flatten: false, 
                                         remoteDirectorySDF: false 
                                     ]
