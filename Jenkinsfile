@@ -52,32 +52,27 @@ pipeline {
 
         stage('Deploy to cPanel (via FTP)') {
             steps {
-                // NOTE: This requires the 'FTP Publisher Plugin' (ftp-publisher) to be installed.
-                // You must configure the FTP server in 'Manage Jenkins -> Configure System'.
+                // Use the correct 'publishers' block syntax with mandatory parameters
                 ftpPublisher(
-                    // 'cPanel-FTP-Server' is the Name of the FTP server config from Jenkins Global Config
-                    // The cPanel user and credentials configured globally will be used.
-                    // The server user must have write access to the target path.
-                    // IMPORTANT: FTP does NOT allow remote 'execCommand' for tasks like 'chmod' 
-                    // or creating a '.htaccess' file for SPA routing. These must be done 
-                    // manually or via a different method (like SFTP/SSH if access is fixed).
+                    // These five parameters are mandatory for the declarative wrapper
+                    // We set them to standard/safe defaults for a CD pipeline
+                    continueOnError: false, 
+                    failOnError: true, 
+                    alwaysPublishFromMaster: false, 
+                    masterNodeName: '', 
+                    paramPublish: null,
+                    
+                    // The actual FTP transfer configuration
                     publishers: [
                         ftp: [
-                            site: 'cPanel-FTP-Server', 
+                            site: 'cPanel-FTP-Server', // MUST match your global config name
                             transfers: [
                                 [
-                                    // Set this to true to delete all existing files on the server 
-                                    // before transferring new ones (clean deployment)
                                     clean: true, 
-                                    // Source directory where 'dist' folder is located
                                     sourceFiles: 'dist/**', 
-                                    // The FTP command will remove this prefix from the source path
                                     removePrefix: 'dist', 
-                                    // The target directory on cPanel (relative to FTP user's home)
-                                    remoteDirectory: '/', 
-                                    // Ensure files are transferred in binary mode (important for images/assets)
+                                    remoteDirectory: 'public_html', 
                                     flatten: false, 
-                                    // Always set to true if 'clean: true' is used above
                                     remoteDirectorySDF: false 
                                 ]
                             ]
