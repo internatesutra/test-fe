@@ -52,28 +52,31 @@ pipeline {
 
         stage('Deploy to cPanel (via FTP)') {
             steps {
-                // Use the correct 'publishers' block syntax with mandatory parameters
+                // Ensure the outermost step parameters are set
                 ftpPublisher(
-                    // These five parameters are mandatory for the declarative wrapper
-                    // We set them to standard/safe defaults for a CD pipeline
                     continueOnError: false, 
                     failOnError: true, 
                     alwaysPublishFromMaster: false, 
                     masterNodeName: '', 
                     paramPublish: null,
                     
-                    // The actual FTP transfer configuration
+                    // The 'publishers' parameter must be a list of BAP Publisher configurations.
                     publishers: [
-                        ftp: [
-                            site: 'cPanel-FTP-Server', // MUST match your global config name
-                            transfers: [
-                                [
-                                    clean: true, 
-                                    sourceFiles: 'dist/**', 
-                                    removePrefix: 'dist', 
-                                    remoteDirectory: 'public_html', 
-                                    flatten: false, 
-                                    remoteDirectorySDF: false 
+                        [ // This represents the first (and only) publisher group
+                            // The actual type identifier for the FTP plugin
+                            'ftp': [
+                                site: 'cPanel-FTP-Server', // MUST match your global config name
+                                
+                                // The 'transfers' parameter MUST be a list of transfer configurations.
+                                transfers: [
+                                    [ // This is the first (and only) transfer configuration
+                                        clean: true, 
+                                        sourceFiles: 'dist/**', 
+                                        removePrefix: 'dist', 
+                                        remoteDirectory: 'public_html', 
+                                        flatten: false, 
+                                        remoteDirectorySDF: false 
+                                    ]
                                 ]
                             ]
                         ]
