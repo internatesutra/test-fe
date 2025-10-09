@@ -52,34 +52,43 @@ pipeline {
 
         stage('Deploy to cPanel (via FTP)') {
             steps {
-                // Ensure the outermost step parameters are set
-                ftpPublisher(
-                    continueOnError: false, 
-                    failOnError: true, 
-                    alwaysPublishFromMaster: false, 
-                    masterNodeName: '', 
-                    paramPublish: null,
-                    
-                    // The 'publishers' parameter must be a list of BAP Publisher configurations.
-                    publishers: [
-                        [ // This represents the first (and only) publisher group
-                            // The actual type identifier for the FTP plugin
-                                site: 'cPanel-FTP-Server', // MUST match your global config name
-                                
-                                // The 'transfers' parameter MUST be a list of transfer configurations.
+                script {
+                    // This is the structure used by the FTP Publisher Plugin
+                    // The site name is passed inside the 'transfer' block.
+                    // This syntax is much more robust than the declarative wrapper.
+                    ftpPublisher(
+                        // These parameters handle error states and execution location
+                        continueOnError: false, 
+                        failOnError: true, 
+                        alwaysPublishFromMaster: false, 
+                        
+                        publishers: [
+                            // Define the publisher group. The 'configName' or 'site' 
+                            // is usually defined within the transfer itself when 
+                            // using this syntax.
+                            [
+                                // This block defines the actual transfer details
                                 transfers: [
-                                    [ // This is the first (and only) transfer configuration
-                                        clean: true, 
-                                        sourceFiles: 'dist/**', 
-                                        removePrefix: 'dist', 
-                                        remoteDirectory: '/', 
+                                    // CRITICAL: Ensure the site name and clean flag are nested correctly
+                                    [
+                                        // The FTP Site Name MUST be passed here:
+                                        site: 'cPanel-FTP-Server', // Name from Manage Jenkins -> FTP Configuration
+                                        
+                                        // Transfer details
+                                        sourceFiles: 'dist/**',
+                                        removePrefix: 'dist',
+                                        remoteDirectory: 'public_html',
+                                        
+                                        // Use the clean flag if needed (delete files before transfer)
+                                        clean: true,
                                         flatten: false, 
                                         remoteDirectorySDF: false 
                                     ]
+                                ]
                             ]
                         ]
-                    ]
-                )
+                    )
+                }
             }
         }
     }
