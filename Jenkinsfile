@@ -68,7 +68,7 @@ pipeline {
                                 makeEmptyDirs: false, 
                                 noDefaultExcludes: false, 
                                 patternSeparator: '[, ]+', 
-                                remoteDirectory: 'public_html', 
+                                remoteDirectory: '', 
                                 remoteDirectorySDF: false, 
                                 removePrefix: 'dist', 
                                 sourceFiles: 'dist/**'
