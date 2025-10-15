@@ -1,6 +1,6 @@
 pipeline {
     agent any 
-    
+    stages{
     // REMOVED: Global tools block is removed to bypass compilation errors.
     // All tool declarations are moved into the stage's environment block.
         stage('SonarQube Analysis') {
@@ -50,3 +50,4 @@ pipeline {
             }
         }
     }
+}
