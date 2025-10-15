@@ -3,19 +3,12 @@ pipeline {
     
     // REMOVED: Global tools block is removed to bypass compilation errors.
     // All tool declarations are moved into the stage's environment block.
-    stages {
-        stage('SCM') {
-            steps { checkout scm }
-        }
-        
         stage('SonarQube Analysis') {
             // New, robust structure to ensure path is set
             environment {
-               
                 // Fetch the path to the installed Node.js tool (required for JS/TS analysis)
                 // Jenkins will install the tool on demand here.
                 NODEJS_HOME = tool 'Node-LTS'
-                
                 // CRITICAL: Fetch the path to the installed SonarQube Scanner.
                 // This replaces the problematic global 'tools' declaration.
                 SONAR_SCANNER_HOME = tool 'SonarQubeScanner'
@@ -23,7 +16,6 @@ pipeline {
             steps {
                 // 1. Inject the Node.js bin directory into the system PATH
                 withEnv(["PATH+NODEJS=${NODEJS_HOME}/bin"]) {
-                    
                     // 2. Wrap the execution with the SonarQube Environment
                     withSonarQubeEnv('SonarQube-Server') { 
                         // 3. Execute the scanner using the environment variable set above.
@@ -53,31 +45,7 @@ pipeline {
         stage('Deploy to cPanel (via FTP)') {
             steps {
                 script {
-                    // Paste the generated Groovy step here
-                    ftpPublisher(
-                        alwaysPublishFromMaster: false, 
-                        continueOnError: false, 
-                        failOnError: false, 
-                        publishers: [[
-                            configName: 'cPanel-FTP-Server', 
-                            transfers: [[
-                                asciiMode: false, 
-                                cleanRemote: true, 
-                                excludes: '', 
-                                flatten: false, 
-                                makeEmptyDirs: false, 
-                                noDefaultExcludes: false, 
-                                patternSeparator: '[, ]+', 
-                                remoteDirectory: '', 
-                                remoteDirectorySDF: false, 
-                                removePrefix: 'dist', 
-                                sourceFiles: 'dist/**'
-                            ]], 
-                            usePromotionTimestamp: false, 
-                            useWorkspaceInPromotion: false, 
-                            verbose: false
-                        ]]
-                    )
+                    sshPublisher(publishers: [sshPublisherDesc(configName: 'Python-V2-Server', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/home/rbbtuomx/testproject.company.e-sutra.com/', remoteDirectorySDF: false, removePrefix: 'dist', sourceFiles: 'dist/**')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
                 }
             }
         }
