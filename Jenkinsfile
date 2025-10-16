@@ -1,5 +1,19 @@
 pipeline {
     agent any 
+    
+    tools {
+        nodejs 'NodeJS-18' // Yeh naam Jenkins Tools configuration se match hona chahiye
+    }
+
+    environment {
+        // Aapka cPanel username
+        CPANEL_USER = 'rbbtuomx'
+        // Aapke server ka IP address
+        SERVER_IP = '103.212.120.166'
+        // cPanel par aapke domain ka path
+        DEPLOY_PATH = '/home/rbbtuomx/testproject.company.e-sutra.com'
+    }
+    
     stages{
     // REMOVED: Global tools block is removed to bypass compilation errors.
     // All tool declarations are moved into the stage's environment block.
@@ -42,12 +56,30 @@ pipeline {
             }
         }
 
-        stage('Deploy to cPanel (via SFTP)') {
+        // Stage 4: cPanel par deploy karna
+        stage('Deploy to cPanel') {
             steps {
-                script {
-                    sshPublisher(publishers: [sshPublisherDesc(configName: 'Python-V2-Server', transfers: [sshTransfer(cleanRemote: true, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/', remoteDirectorySDF: false, removePrefix: 'dist', sourceFiles: 'dist/**')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+                echo "Build files ko cPanel par deploy kar rahe hain: ${DEPLOY_PATH}"
+                // Jenkins me save kiye gaye SSH credentials ka use karo
+                sshagent(credentials: ['cpanel-ssh-key']) { // Yeh ID Jenkins Credentials se match honi chahiye
+                    script {
+                        // Pehle purane files delete kar do (Dhyaan se! Path sahi hona chahiye)
+                        sh "ssh -o StrictHostKeyChecking=no ${env.CPANEL_USER}@${env.SERVER_IP} 'rm -rf ${env.DEPLOY_PATH}/*'"
+                        
+                        // Ab naye build files ko 'dist' folder se cPanel par copy karo
+                        sh "scp -r dist/* ${env.CPANEL_USER}@${env.SERVER_IP}:${env.DEPLOY_PATH}/"
+                    }
                 }
             }
+        }
+    }
+    // Pipeline ke poora hone ke baad kya karna hai
+    post {
+        success {
+            echo 'Bhai, Deployment Successful ho gaya! Website check kar lo.'
+        }
+        failure {
+            echo 'Arre, Pipeline fail ho gayi! Jenkins console me error check karo.'
         }
     }
 }
