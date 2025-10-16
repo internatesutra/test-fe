@@ -8,8 +8,10 @@ pipeline {
     environment {
         // Aapka cPanel username
         CPANEL_USER = 'rbbtuomx'
-        // Aapke server ka IP address
-        SERVER_IP = '103.212.120.166:22999'
+        // Aapke server ka IP address (bina port ke)
+        SERVER_IP = '103.212.120.166'
+        // Aapke cPanel server ka SSH Port
+        SERVER_PORT = '22999' // Ise change karein agar aapka port alag hai
         // cPanel par aapke domain ka path
         DEPLOY_PATH = '/home/rbbtuomx/testproject.company.e-sutra.com'
     }
@@ -64,10 +66,12 @@ pipeline {
                 sshagent(credentials: ['cpanel-ssh-key']) { // Yeh ID Jenkins Credentials se match honi chahiye
                     script {
                         // Pehle purane files delete kar do (Dhyaan se! Path sahi hona chahiye)
-                        sh "ssh -o StrictHostKeyChecking=no ${env.CPANEL_USER}@${env.SERVER_IP} 'rm -rf ${env.DEPLOY_PATH}/*'"
+                        // SSH ke liye port flag -p (lowercase) use hota hai
+                        sh "ssh -p ${env.SERVER_PORT} -o StrictHostKeyChecking=no ${env.CPANEL_USER}@${env.SERVER_IP} 'rm -rf ${env.DEPLOY_PATH}/*'"
                         
                         // Ab naye build files ko 'dist' folder se cPanel par copy karo
-                        sh "scp -r dist/* ${env.CPANEL_USER}@${env.SERVER_IP}:${env.DEPLOY_PATH}/"
+                        // SCP ke liye port flag -P (uppercase) use hota hai
+                        sh "scp -P ${env.SERVER_PORT} -r dist/* ${env.CPANEL_USER}@${env.SERVER_IP}:${env.DEPLOY_PATH}/"
                     }
                 }
             }
