@@ -2,7 +2,7 @@ pipeline {
     agent any 
     
     tools {
-        nodejs 'NodeJS-18' // Yeh naam Jenkins Tools configuration se match hona chahiye
+        nodejs 'Node-LTS' // Yeh naam Jenkins Tools configuration se match hona chahiye
     }
 
     environment {
