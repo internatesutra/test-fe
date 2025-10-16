@@ -9,7 +9,7 @@ pipeline {
         // Aapka cPanel username
         CPANEL_USER = 'rbbtuomx'
         // Aapke server ka IP address
-        SERVER_IP = '103.212.120.166'
+        SERVER_IP = '103.212.120.166:22999'
         // cPanel par aapke domain ka path
         DEPLOY_PATH = '/home/rbbtuomx/testproject.company.e-sutra.com'
     }
