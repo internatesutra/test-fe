@@ -84,10 +84,10 @@ pipeline {
                     def color = currentBuild.result == 'SUCCESS' ? 'good' : 'danger'
                     
                     slackSend(
-                        channel: '#your-channel-name',
+                        channel: '#test-fe-devops',
                         color: color,
                         message: "Project *${env.JOB_NAME}* - Build #${env.BUILD_NUMBER} is ${currentBuild.result}!",
-                        tokenCredentialId: 'slack-bot-token',
+                        tokenCredentialId: 'slack-testfe',
                         botUser: true
                     )
                 }
