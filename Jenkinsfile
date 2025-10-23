@@ -81,16 +81,29 @@ pipeline {
     post {
             always {
                 script {
-                    def color = currentBuild.result == 'SUCCESS' ? 'good' : 'danger'
+                    // 1. Determine Status and Color
+                    def buildStatus = currentBuild.result
+                    def color = buildStatus == 'SUCCESS' ? 'good' : 'danger'
                     
+                    // 2. Determine Emoji
+                    // The Slack plugin can handle Unicode emojis like the checkmark and X
+                    def emoji = buildStatus == 'SUCCESS' ? ':white_check_mark:' : ':x:'
+
+                    // 3. Construct the Custom Message
+                    def customMessage = """
+Project Name: *XYZ IN BOLD*
+Build No.: #${env.BUILD_NUMBER}
+Status: ${emoji} ${buildStatus}
+"""
+                    // 4. Send the Slack Notification
                     slackSend(
-                        channel: '#test-fe-devops',
+                        channel: '#test-fe-devops', // Use your specific channel name
                         color: color,
-                        message: "Project *${env.JOB_NAME}* - Build #${env.BUILD_NUMBER} is ${currentBuild.result}!",
-                        tokenCredentialId: 'slack-testfe',
+                        message: customMessage,
+                        tokenCredentialId: 'slack-testfe', // Your Credential ID
                         botUser: true
                     )
                 }
             }
-        }
+    }
 }
