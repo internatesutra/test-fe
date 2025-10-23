@@ -85,5 +85,18 @@ pipeline {
         failure {
             echo 'Arre, Pipeline fail ho gayi! Jenkins console me error check karo.'
         }
+        always {
+            // Determine the message color based on the build result
+            def color = currentBuild.result == 'SUCCESS' ? 'good' : 'danger'
+
+            // Send a notification
+            slackSend(
+                channel: '#test-fe-devops', // Override default channel
+                color: color,
+                message: "Project *${env.JOB_NAME}* - Build #${env.BUILD_NUMBER} is ${currentBuild.result}!",
+                tokenCredentialId: 'slack-testfe', // Your Credential ID
+                botUser: true
+            )
+        }
     }
 }
