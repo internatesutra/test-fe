@@ -79,24 +79,18 @@ pipeline {
     }
     // Pipeline ke poora hone ke baad kya karna hai
     post {
-        success {
-            echo 'Bhai, Deployment Successful ho gaya! Website check kar lo.'
+            always {
+                script {
+                    def color = currentBuild.result == 'SUCCESS' ? 'good' : 'danger'
+                    
+                    slackSend(
+                        channel: '#your-channel-name',
+                        color: color,
+                        message: "Project *${env.JOB_NAME}* - Build #${env.BUILD_NUMBER} is ${currentBuild.result}!",
+                        tokenCredentialId: 'slack-bot-token',
+                        botUser: true
+                    )
+                }
+            }
         }
-        failure {
-            echo 'Arre, Pipeline fail ho gayi! Jenkins console me error check karo.'
-        }
-        always {
-            // Determine the message color based on the build result
-            def color = currentBuild.result == 'SUCCESS' ? 'good' : 'danger'
-
-            // Send a notification
-            slackSend(
-                channel: '#test-fe-devops', // Override default channel
-                color: color,
-                message: "Project *${env.JOB_NAME}* - Build #${env.BUILD_NUMBER} is ${currentBuild.result}!",
-                tokenCredentialId: 'slack-testfe', // Your Credential ID
-                botUser: true
-            )
-        }
-    }
 }
