@@ -91,8 +91,8 @@ pipeline {
 
                     // 3. Construct the Custom Message
                     def customMessage = """
-Project Name: *XYZ IN BOLD*
-Build No.: #${env.BUILD_NUMBER}
+Project Name: *${env.JOB_NAME}*
+Build No.: *#${env.BUILD_NUMBER}*
 Status: ${emoji} ${buildStatus}
 """
                     // 4. Send the Slack Notification
